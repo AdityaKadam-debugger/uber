@@ -159,3 +159,100 @@ Example response:
   "message": "Invalid Email or Password"
 }
 ```
+
+## Get User Profile
+
+Returns the authenticated user's profile details.
+
+### Endpoint
+
+```http
+GET /users/profile
+Authorization: Bearer <jwt-token>
+```
+
+> The server also accepts the token from a cookie named `token`.
+
+### Headers
+
+| Header | Required | Description |
+| --- | --- | --- |
+| `Authorization` | No | Bearer token in the format `Bearer <jwt-token>` |
+
+### Responses
+
+#### `200 OK`
+
+The request was authenticated successfully and returns the current user profile.
+
+Example response:
+
+```json
+{
+  "_id": "<user-id>",
+  "fullname": {
+    "firstname": "Aarav",
+    "lastname": "Sharma"
+  },
+  "email": "aarav@example.com",
+  "createdAt": "2026-09-17T00:00:00.000Z",
+  "updatedAt": "2026-09-17T00:00:00.000Z"
+}
+```
+
+#### `401 Unauthorized`
+
+The token is missing, expired, invalid, or the user no longer exists.
+
+Example response:
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+## Logout User
+
+Logs out the authenticated user by clearing the token cookie and blacklisting the active JWT.
+
+### Endpoint
+
+```http
+GET /users/logout
+Authorization: Bearer <jwt-token>
+```
+
+> The server also accepts the token from a cookie named `token`.
+
+### Headers
+
+| Header | Required | Description |
+| --- | --- | --- |
+| `Authorization` | No | Bearer token in the format `Bearer <jwt-token>` |
+
+### Responses
+
+#### `200 OK`
+
+Logout succeeded. The token cookie is cleared and the JWT is blacklisted.
+
+Example response:
+
+```json
+{
+  "message": "Logout Successfully"
+}
+```
+
+#### `401 Unauthorized`
+
+The request is missing a valid authentication token.
+
+Example response:
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
