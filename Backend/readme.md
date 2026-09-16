@@ -77,3 +77,85 @@ Example response:
   ]
 }
 ```
+
+## Login User
+
+Authenticates an existing user and returns an authentication token.
+
+### Endpoint
+
+```http
+POST /users/login
+Content-Type: application/json
+```
+
+### Request body
+
+The request body must be valid JSON and contain the following data:
+
+| Field | Type | Required | Requirements |
+| --- | --- | --- | --- |
+| `email` | string | Yes | Must be a valid email address |
+| `password` | string | Yes | At least 6 characters |
+
+Example:
+
+```json
+{
+  "email": "aarav@example.com",
+  "password": "secret123"
+}
+```
+
+### Responses
+
+#### `200 OK`
+
+Login succeeded. The response contains an authentication token and the authenticated user.
+
+Example response:
+
+```json
+{
+  "token": "<jwt-token>",
+  "user": {
+    "_id": "<user-id>",
+    "fullname": {
+      "firstname": "Aarav",
+      "lastname": "Sharma"
+    },
+    "email": "aarav@example.com"
+  }
+}
+```
+
+#### `400 Bad Request`
+
+The request failed validation. The response contains the validation errors.
+
+Example response:
+
+```json
+{
+  "errors": [
+    {
+      "type": "field",
+      "msg": "Invalid Email",
+      "path": "email",
+      "location": "body"
+    }
+  ]
+}
+```
+
+#### `401 Unauthorized`
+
+The email or password is invalid.
+
+Example response:
+
+```json
+{
+  "message": "Invalid Email or Password"
+}
+```
