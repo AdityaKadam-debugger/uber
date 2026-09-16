@@ -64,3 +64,9 @@ module.exports.loginUser = async(req, res, next) => {
     });
     
 }
+
+
+// For This Controller The Logic goes like the user which the middleware will fetch during a specific real time request will be displayed 
+module.exports.getUserProfile = async(req, res, next) => {
+        res.status(200).json(req.user);
+}

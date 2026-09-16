@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const userControllers = require("../controllers/user.controller")
+const userControllers = require("../controllers/user.controller");
+const authMiddleware = require("../Middlewares/auth.middleware");
 // This is what we called it as destructuring
 const { body } = require("express-validator")
 
@@ -34,5 +35,7 @@ router.post("/login", [
         .withMessage('Password Should Be Atleast 6 characters')
 
 ], userControllers.loginUser);
+
+router.get('/profile',authMiddleware.authUser,userControllers.getUserProfile)
 
 module.exports = router;
