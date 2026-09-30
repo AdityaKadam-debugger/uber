@@ -256,3 +256,107 @@ Example response:
   "message": "Unauthorized"
 }
 ```
+
+<!-- ---------------------------------------------------------------------------------->
+## Register Captain
+
+Creates a new captain account, including the captain's vehicle details, and returns an authentication token.
+
+### Endpoint
+
+```http
+POST /captain/register
+Content-Type: application/json
+```
+
+### Request body
+
+The request body must be valid JSON and contain the following data:
+
+| Field | Type | Required | Requirements |
+| --- | --- | --- | --- |
+| `fullname.firstname` | string | Yes | At least 3 characters |
+| `fullname.lastname` | string | No | If provided, at least 3 characters |
+| `email` | string | Yes | Must be a valid email address |
+| `password` | string | Yes | At least 6 characters |
+| `vehicle.color` | string | Yes | At least 3 characters |
+| `vehicle.plate` | string | Yes | At least 3 characters |
+| `vehicle.capacity` | integer | Yes | At least 1 |
+| `vehicle.vehicleType` | string | Yes | One of `car`, `motorcycle`, `auto-rickshaw`, `van`, or `bus` |
+
+Example:
+
+```json
+{
+  "fullname": {
+    "firstname": "Aarav",
+    "lastname": "Sharma"
+  },
+  "email": "aarav.captain@example.com",
+  "password": "secret123",
+  "vehicle": {
+    "color": "White",
+    "plate": "MH12AB1234",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+### Responses
+
+#### `200 OK`
+
+Captain registration succeeded. The response contains an authentication token and the created captain.
+
+Example response:
+
+```json
+{
+  "message": "Captain Created Successfully",
+  "token": "<jwt-token>",
+  "captain": {
+    "_id": "<captain-id>",
+    "fullname": {
+      "firstname": "Aarav",
+      "lastname": "Sharma"
+    },
+    "email": "aarav.captain@example.com",
+    "status": "inactive",
+    "role": "captain",
+    "vehicle": {
+      "color": "White",
+      "plate": "MH12AB1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+#### `400 Bad Request`
+
+The request failed validation, or the email is already registered.
+
+Validation error example:
+
+```json
+{
+  "errors": [
+    {
+      "type": "field",
+      "msg": "Invalid Email",
+      "path": "email",
+      "location": "body"
+    }
+  ]
+}
+```
+
+Duplicate email example:
+
+```json
+{
+  "message": "Captain Already Exists"
+}
+```
