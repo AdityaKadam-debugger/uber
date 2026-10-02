@@ -258,9 +258,15 @@ Example response:
 ```
 
 <!-- ---------------------------------------------------------------------------------->
+## Captain Routes
+
+Captain endpoints are mounted under `/captain`. Request examples use JSONC so the
+comments can document requirements and constraints. Remove the comments before
+sending the body as strict JSON.
+
 ## Register Captain
 
-Creates a new captain account, including the captain's vehicle details, and returns an authentication token.
+Creates a captain account with vehicle details and returns an authentication token.
 
 ### Endpoint
 
@@ -271,34 +277,19 @@ Content-Type: application/json
 
 ### Request body
 
-The request body must be valid JSON and contain the following data:
-
-| Field | Type | Required | Requirements |
-| --- | --- | --- | --- |
-| `fullname.firstname` | string | Yes | At least 3 characters |
-| `fullname.lastname` | string | No | If provided, at least 3 characters |
-| `email` | string | Yes | Must be a valid email address |
-| `password` | string | Yes | At least 6 characters |
-| `vehicle.color` | string | Yes | At least 3 characters |
-| `vehicle.plate` | string | Yes | At least 3 characters |
-| `vehicle.capacity` | integer | Yes | At least 1 |
-| `vehicle.vehicleType` | string | Yes | One of `car`, `motorcycle`, `auto-rickshaw`, `van`, or `bus` |
-
-Example:
-
-```json
+```jsonc
 {
   "fullname": {
-    "firstname": "Aarav",
-    "lastname": "Sharma"
+    "firstname": "Aarav", // Required; string with at least 3 characters.
+    "lastname": "Sharma" // Optional; if provided, string with at least 3 characters.
   },
-  "email": "aarav.captain@example.com",
-  "password": "secret123",
+  "email": "aarav.captain@example.com", // Required; must be a valid email address and unique.
+  "password": "secret123", // Required; at least 6 characters.
   "vehicle": {
-    "color": "White",
-    "plate": "MH12AB1234",
-    "capacity": 4,
-    "vehicleType": "car"
+    "color": "White", // Required; at least 3 characters.
+    "plate": "MH12AB1234", // Required; at least 3 characters.
+    "capacity": 4, // Required; integer of at least 1.
+    "vehicleType": "car" // Required; car, motorcycle, auto-rickshaw, van, or bus.
   }
 }
 ```
@@ -306,10 +297,6 @@ Example:
 ### Responses
 
 #### `200 OK`
-
-Captain registration succeeded. The response contains an authentication token and the created captain.
-
-Example response:
 
 ```json
 {
@@ -336,9 +323,7 @@ Example response:
 
 #### `400 Bad Request`
 
-The request failed validation, or the email is already registered.
-
-Validation error example:
+Returned when validation fails or the email is already registered.
 
 ```json
 {
@@ -353,10 +338,162 @@ Validation error example:
 }
 ```
 
-Duplicate email example:
-
 ```json
 {
   "message": "Captain Already Exists"
+}
+```
+
+## Login Captain
+
+Authenticates a captain and returns an authentication token.
+
+### Endpoint
+
+```http
+POST /captain/login
+Content-Type: application/json
+```
+
+### Request body
+
+```jsonc
+{
+  "email": "aarav.captain@example.com", // Required; must be a valid email address.
+  "password": "secret123" // Required; at least 4 characters for route validation.
+}
+```
+
+### Responses
+
+#### `200 OK`
+
+```json
+{
+  "message": "Logged-in Successfully",
+  "captain": {
+    "_id": "<captain-id>",
+    "fullname": {
+      "firstname": "Aarav",
+      "lastname": "Sharma"
+    },
+    "email": "aarav.captain@example.com",
+    "status": "inactive",
+    "role": "captain",
+    "vehicle": {
+      "color": "White",
+      "plate": "MH12AB1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  },
+  "token": "<jwt-token>"
+}
+```
+
+The token is also returned in a cookie named `token`.
+
+#### `400 Bad Request`
+
+```json
+{
+  "message": "User Not Found"
+}
+```
+
+or:
+
+```json
+{
+  "message": "Invalid Passowrd"
+}
+```
+
+Validation failures use the same `errors` response format as registration.
+
+## Get Captain Profile
+
+Returns the authenticated captain's profile.
+
+### Endpoint
+
+```http
+GET /captain/profile
+Authorization: Bearer <jwt-token> // Optional when the token cookie is present.
+```
+
+The server also accepts the token from a cookie named `token`.
+
+### Request body
+
+```jsonc
+{} // No request body is required.
+```
+
+### Responses
+
+#### `200 OK`
+
+```json
+{
+  "captain": {
+    "_id": "<captain-id>",
+    "fullname": {
+      "firstname": "Aarav",
+      "lastname": "Sharma"
+    },
+    "email": "aarav.captain@example.com",
+    "status": "inactive",
+    "role": "captain",
+    "vehicle": {
+      "color": "White",
+      "plate": "MH12AB1234",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+#### `400 Bad Request`
+
+```json
+{
+  "message": "Unauthorized"
+}
+```
+
+## Logout Captain
+
+Clears the token cookie and blacklists the active JWT.
+
+### Endpoint
+
+```http
+POST /captain/logout
+Authorization: Bearer <jwt-token> // Send the active token when no token cookie is used.
+```
+
+### Request body
+
+```jsonc
+{} // No request body is required.
+```
+
+### Responses
+
+#### `200 OK`
+
+```json
+{
+  "message": "Captain Logged-out Successfully"
+}
+```
+
+#### `400 Bad Request`
+
+```json
+{
+  "message": "Unauthorized"
 }
 ```
